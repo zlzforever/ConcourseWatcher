@@ -119,6 +119,9 @@ public class Worker : BackgroundService
         p.BeginErrorReadLine();
         p.BeginOutputReadLine();
 
+        await p.StandardInput.WriteLineAsync(
+            $"fly -t {team} login -c {url} --username {userName} --password {password}");
+
         while (!stoppingToken.IsCancellationRequested)
         {
             _logger.LogInformation("Worker scanning pipelines");
