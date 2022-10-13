@@ -126,8 +126,10 @@ public class Worker : BackgroundService
 
         if (!File.Exists("/usr/local/bin/fly"))
         {
-            await p.StandardInput.WriteLineAsync(
-                $"curl {url}/api/v1/cli?arch=amd64&platform=linux -o fly && chmod +x ./fly && mv ./fly /usr/local/bin/");
+            var bytes = await new HttpClient().GetByteArrayAsync($"{url}/api/v1/cli?arch=amd64&platform=linux",
+                stoppingToken);
+            await File.WriteAllBytesAsync("/usr/local/bin/fly", bytes, stoppingToken);
+            await p.StandardInput.WriteLineAsync("chmod +x /usr/local/bin/fly");
         }
 
         await p.StandardInput.WriteLineAsync(
