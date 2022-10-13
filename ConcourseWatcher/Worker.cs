@@ -126,10 +126,12 @@ public class Worker : BackgroundService
 
         if (!File.Exists("/usr/local/bin/fly"))
         {
+            _logger.LogInformation("Start download fly...");
             var bytes = await new HttpClient().GetByteArrayAsync($"{url}/api/v1/cli?arch=amd64&platform=linux",
                 stoppingToken);
             await File.WriteAllBytesAsync("/usr/local/bin/fly", bytes, stoppingToken);
             await p.StandardInput.WriteLineAsync("chmod +x /usr/local/bin/fly");
+            _logger.LogInformation("Install fly success");
         }
 
         await p.StandardInput.WriteLineAsync(
