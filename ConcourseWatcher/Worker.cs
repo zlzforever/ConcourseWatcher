@@ -24,6 +24,11 @@ public class Worker : BackgroundService
             throw new ArgumentException("Url is required");
         }
 
+        if (url.EndsWith("/"))
+        {
+            url = url.Substring(0, url.Length - 1);
+        }
+
         var team = _configuration["TEAM"];
         if (string.IsNullOrWhiteSpace(team))
         {
@@ -118,6 +123,12 @@ public class Worker : BackgroundService
 
         p.BeginErrorReadLine();
         p.BeginOutputReadLine();
+
+        if (!File.Exists("/usr/local/bin/fly"))
+        {
+            await p.StandardInput.WriteLineAsync(
+                $"curl {url}/api/v1/cli?arch=amd64&platform=linux -o fly && chmod +x ./fly && mv ./fly /usr/local/bin/");
+        }
 
         await p.StandardInput.WriteLineAsync(
             $"fly -t {team} login -c {url} --username {userName} --password {password}");
